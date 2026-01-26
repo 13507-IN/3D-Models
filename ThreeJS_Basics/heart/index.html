@@ -50,9 +50,10 @@
 
   // Material
   const material = new THREE.MeshStandardMaterial({
-    color: 0xff2d55,
-    metalness: 0.3,
-    roughness: 0.4
+      color: 0xff2d55,
+      transmission: 2,
+      roughness: 0,
+      thickness: 1
   })
 
   const heart = new THREE.Mesh(geometry, material)
@@ -72,7 +73,11 @@
     requestAnimationFrame(animate)
 
     heart.rotation.y += 0.01
-    heart.rotation.x += 0.005
+    heart.rotation.x += 0.01
+
+    const scale = 1 + Math.sin(Date.now() * 0.005) * 0.05
+    heart.scale.set(0.2 * scale, 0.2 * scale, 0.2 * scale)
+
 
     renderer.render(scene, camera)
   }
