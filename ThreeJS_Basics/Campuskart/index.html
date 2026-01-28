@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>3D Campuskart Text</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #141414, #000);
+    }
+  </style>
+</head>
+<body>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+
+<script>
+  // Scene
+  const scene = new THREE.Scene()
+
+  // Camera
+  const camera = new THREE.PerspectiveCamera(
+    45,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    100
+  )
+  camera.position.z = 14
+
+  // Renderer
+  const renderer = new THREE.WebGLRenderer({ antialias: true })
+  renderer.setSize(window.innerWidth, window.innerHeight)
+  renderer.setPixelRatio(window.devicePixelRatio)
+  document.body.appendChild(renderer.domElement)
+
+  // Lights
+  scene.add(new THREE.AmbientLight(0xffffff, 0.4))
+
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.2)
+  keyLight.position.set(5, 8, 6)
+  scene.add(keyLight)
+
+  const rimLight = new THREE.DirectionalLight(0x88aaff, 0.6)
+  rimLight.position.set(-6, 4, -6)
+  scene.add(rimLight)
+
+  // Font Loader
+  const loader = new THREE.FontLoader()
+  loader.load("font.json", (font) => {
+
+    const textGeometry = new THREE.TextGeometry("Campuskart", {
+      font: font,
+      size: 2.2,
+      height: 0.6,
+      curveSegments: 12,
+      bevelEnabled: true,
+      bevelThickness: 0.08,
+      bevelSize: 0.04,
+      bevelSegments: 5
+    })
+
+    textGeometry.center()
+
+    const textMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x4f46e5,
+      metalness: 0.6,
+      roughness: 0.25,
+      clearcoat: 0.7,
+      clearcoatRoughness: 0.15
+    })
+
+    const textMesh = new THREE.Mesh(textGeometry, textMaterial)
+    scene.add(textMesh)
+
+    // Mouse interaction
+    let targetX = 0
+    let targetY = 0
+    let currentX = 0
+    let currentY = 0
+
+    window.addEventListener("mousemove", (e) => {
+      targetX = (e.clientX / window.innerWidth - 0.5) * 1.2
+      targetY = (e.clientY / window.innerHeight - 0.5) * 0.6
+    })
+
+    // Animation
+    function animate() {
+      requestAnimationFrame(animate)
+
+      currentX += (targetX - currentX) * 0.05
+      currentY += (targetY - currentY) * 0.05
+
+      textMesh.rotation.y = currentX
+      textMesh.rotation.x = -currentY
+
+      // subtle float
+      textMesh.position.y = Math.sin(Date.now() * 0.002) * 0.15
+
+      renderer.render(scene, camera)
+    }
+
+    animate()
+  })
+
+  // Resize
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight
+    camera.updateProjectionMatrix()
+    renderer.setSize(window.innerWidth, window.innerHeight)
+  })
+</script>
+
+</body>
+</html>
