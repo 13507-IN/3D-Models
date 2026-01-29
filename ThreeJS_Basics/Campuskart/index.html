@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>3D Campuskart Text</title>
+  <title>3D Campuskart</title>
   <style>
     body {
       margin: 0;
@@ -12,7 +12,12 @@
 </head>
 <body>
 
+<!-- THREE CORE -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+
+<!-- REQUIRED FOR TEXT -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/loaders/FontLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/geometries/TextGeometry.js"></script>
 
 <script>
   // Scene
@@ -44,63 +49,55 @@
   rimLight.position.set(-6, 4, -6)
   scene.add(rimLight)
 
-  // Font Loader
+  // Load font
   const loader = new THREE.FontLoader()
-  loader.load("font.json", (font) => {
+  loader.load(
+    "https://threejs.org/examples/fonts/helvetiker_bold.typeface.json",
+    function (font) {
 
-    const textGeometry = new THREE.TextGeometry("Campuskart", {
-      font: font,
-      size: 2.2,
-      height: 0.6,
-      curveSegments: 12,
-      bevelEnabled: true,
-      bevelThickness: 0.08,
-      bevelSize: 0.04,
-      bevelSegments: 5
-    })
+      const geometry = new THREE.TextGeometry("Campuskart", {
+        font: font,
+        size: 2.5,
+        height: 0.7,
+        curveSegments: 12,
+        bevelEnabled: true,
+        bevelThickness: 0.08,
+        bevelSize: 0.04,
+        bevelSegments: 5
+      })
 
-    textGeometry.center()
+      geometry.center()
 
-    const textMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0x4f46e5,
-      metalness: 0.6,
-      roughness: 0.25,
-      clearcoat: 0.7,
-      clearcoatRoughness: 0.15
-    })
+      const material = new THREE.MeshStandardMaterial({
+        color: 0x4f46e5,
+        metalness: 0.6,
+        roughness: 0.25
+      })
 
-    const textMesh = new THREE.Mesh(textGeometry, textMaterial)
-    scene.add(textMesh)
+      const text = new THREE.Mesh(geometry, material)
+      scene.add(text)
 
-    // Mouse interaction
-    let targetX = 0
-    let targetY = 0
-    let currentX = 0
-    let currentY = 0
+      // Mouse interaction
+      let mx = 0, my = 0
 
-    window.addEventListener("mousemove", (e) => {
-      targetX = (e.clientX / window.innerWidth - 0.5) * 1.2
-      targetY = (e.clientY / window.innerHeight - 0.5) * 0.6
-    })
+      window.addEventListener("mousemove", e => {
+        mx = (e.clientX / window.innerWidth - 0.5) * 1.5
+        my = (e.clientY / window.innerHeight - 0.5) * 0.8
+      })
 
-    // Animation
-    function animate() {
-      requestAnimationFrame(animate)
+      function animate() {
+        requestAnimationFrame(animate)
 
-      currentX += (targetX - currentX) * 0.05
-      currentY += (targetY - currentY) * 0.05
+        text.rotation.y += (mx - text.rotation.y) * 0.05
+        text.rotation.x += (-my - text.rotation.x) * 0.05
+        text.position.y = Math.sin(Date.now() * 0.002) * 0.15
 
-      textMesh.rotation.y = currentX
-      textMesh.rotation.x = -currentY
+        renderer.render(scene, camera)
+      }
 
-      // subtle float
-      textMesh.position.y = Math.sin(Date.now() * 0.002) * 0.15
-
-      renderer.render(scene, camera)
+      animate()
     }
-
-    animate()
-  })
+  )
 
   // Resize
   window.addEventListener("resize", () => {
